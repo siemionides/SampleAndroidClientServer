@@ -1,0 +1,85 @@
+OK - wyświetla liste 5 rzeczy 
+OK wyświetla liste 5 kontaktow
+OK zrobiony jest adapter laczacy listView z 5 kontaktami
+OK listView ma CheckBoxa + jego Pole Name wyswietla imie i nazwisko kontaktu
+OK jest przycisk wyslij ktory pobiera zaznaczone dane
+OK budowany jest JSON z zaznczonymi kontakami
+- postawiony jest serwer + skrypt odwracajacy
+- przetestowany jest serwer
+- w watku glownym jest robione zapytanie i wyswietlony w konsoli jest zwrot
+- zwrot podmienia zawartosc listy (adaptera) i informuje go o tym
+- uzyty jest AsynTask (Service? raczej AsyntTask) do zrobienia zapytania
+
+bonusy:
+- zrob by adapter trzymal tablice obiektow z polami name i family name - zeby w razie spacji dobrze dzialalo
+- 
+
+ 
+Stworzyć aplikację, która na ekranie wyświetli 5 kontaktów (imię i nazwisko) z wewnętrznej ksiązki adresowej telefonu.
+Obok każdego kontaktu (imię i nazwisko) wyświetlić checkbox.
+Poniżej listy wyświetlić klawisz "Wyślij".
+ 
+Naciśnięcie klawisza "Wyślij" spowoduje wysłanie do serwera tylko wybranych (zaznaczony checkbox) kontaktów.
+ 
+Forma requestu do serwera:
+{ 
+"fname":"Onufry",
+"sname":"Zagłoba"  
+}
+ 
+Serwer zwróci zamienione pola fname i sname w formie:
+{
+"fname": "Zagłoba",
+"sname": "Onufry"
+}
+ 
+Odpowiedź serwera zaktualizować na ekranie.
+ 
+ 
+ 
+ 
+W załączniku skrypt implementujący funkcjonalność serwera.
+Ponizej skrypt z załącznika
+<cut>
+function swapNames(data){
+      var ndata = new Object();
+      ndata.fname = data.sname;
+      ndata.sname = data.fname;
+      return ndata;
+}
+ 
+var http = require('http');
+ 
+http.createServer(function (req, res) {
+      req.setEncoding("utf8");
+      var result = '';
+      req.on('data', function (chunk) {
+            result += chunk;
+      });
+ 
+      req.on('end', function () {
+         var data = swapNames(JSON.parse(result));
+            res.writeHead(200, {'Content-Type': 'application/json'});
+            res.end(JSON.stringify(data) + '\n');
+ 
+      });
+}).listen(8881, "127.0.0.1");
+ 
+console.log('Server running at http://127.0.0.1:8881/');
+</cut>
+ 
+Do uruchomienia skryptu potrzebny jest Node.js http://nodejs.org/
+Polecenie uruchamiające:
+$> node node-swapnames.js 
+ 
+Przykładowe wywołanie requestu do serwera:
+$> curl -i -X POST -d '{ "fname": "Onufry", "sname": "Zagłoba" }'  http://localhost:8881
+ 
+Przykładowa odpowiedź serwera
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Wed, 27 Mar 2013 15:08:25 GMT
+Connection: keep-alive
+Transfer-Encoding: chunked
+ 
+{"fname":"Zagłoba","sname":"Onufry"}
