@@ -1,23 +1,37 @@
 package com.example.impaqsampleproject;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.example.impaqsampleproject.Contact;
 
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -29,6 +43,9 @@ public class ContactsViewerActivity extends Activity {
 	private final int CONTACTS_LIMIT = 5;
 	
 	private MyContactAdapter contactAdapter;
+	
+//	/** To store contacts that were selected with */
+//	private Set<Integer> lastSelectedPos = new HashSet<Integer>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,10 +56,9 @@ public class ContactsViewerActivity extends Activity {
 		ListView myListView = (ListView)findViewById(R.id.myListView);
 		defineButtonClick();
 
-
 		
 		// Create the Array List of to do items
-		final ArrayList<Contact> listContacts = new ArrayList<Contact>();
+		ArrayList<Contact> listContacts = new ArrayList<Contact>();
 
 		// Bind the Array Adapter to the List View
 		populateListWithContacts(listContacts);
@@ -102,7 +118,7 @@ public class ContactsViewerActivity extends Activity {
 				   holder = (ViewHolder) convertView.getTag();
 			   }
 			 
-			   Contact contact = contactList.get(position);
+			   Contact contact = contactAdapter.getItem(position);
 	//		   contact.g
 	//		   contact.
 	//		   Contact con = new Contact("ja", "a");
@@ -122,7 +138,7 @@ public class ContactsViewerActivity extends Activity {
 		adapter.contactList.get(position).setSelected(isSelected);
 	}
 	
-	/** Defines "send" button listener */
+	/** Defines "send" button on click listener */
 	private void defineButtonClick(){
 		Button buttonSend = (Button) findViewById(R.id.button1);
 		
@@ -138,22 +154,117 @@ public class ContactsViewerActivity extends Activity {
 					if (c.isSelected())
 						selectedContacts.add(c);
 				}
+				
+				
 				Log.d("debug", "Selected contacts:");
+				
+				String hostIp = "http://" + 
+						getResources().getString(R.string.default_server_ip) + ":" + 
+						getResources().getString(R.string.default_server_port);
+				
 				for (Contact c : selectedContacts){
-					JSONObject json = new JSONObject();
-					try {
-						json.put("sname", c.getGivenName());
-						json.put("fname", c.getFamilyName());
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-					Log.d("debug", json.toString());
+					
+					new JSONRequestAndUpdateTask().execute(hostIp, c.getGivenName(), 
+							c.getFamilyName(), String.valueOf(contactAdapter.getPosition(c)));
+				
 				}
 				
 				JSONObject json = new JSONObject();
 			}
 			
 		});
+	}
+	/** Param, Progress, Result*/
+	class JSONRequestAndUpdateTask extends AsyncTask<String, Integer, String>{
+
+		private int positionOfContact;
+		
+		
+		protected String doInBackground(String... params) {
+			String url = params[0];
+			String givenName = params[1];
+			String familyName = params[2];
+			String position = params[3];
+			
+			//safely cast int to java
+			try{
+				positionOfContact = Integer.parseInt(position);
+			}catch (NumberFormatException nfe){
+				Log.e("error", "Cannot cast String to Int within JSONRequestAndUpdateTask.doInBackground() method.");
+				return "";
+			}
+			
+			
+			JSONObject json = new JSONObject();
+			try {
+				json.put("sname", givenName);
+				json.put("fname", familyName);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			
+			// here add request and response 
+			Log.d("debug", "String to send (url : " + url + ") : " + json.toString());
+			//String response = postData(hostIp, json);
+		    HttpParams myParams = new BasicHttpParams();
+		    HttpConnectionParams.setConnectionTimeout(myParams, 10000);
+		    HttpConnectionParams.setSoTimeout(myParams, 10000);
+		    HttpClient httpclient = new DefaultHttpClient();
+//		    json=obj.toString();
+		    String returnStr = "";
+		    try {
+
+		        HttpPost httppost = new HttpPost(url.toString());
+		        httppost.setHeader("Content-type", "application/json");
+
+		        StringEntity se = new StringEntity(json.toString()); 
+		        se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+		        httppost.setEntity(se); 
+
+		        HttpResponse response = httpclient.execute(httppost);
+		        returnStr= EntityUtils.toString(response.getEntity());
+		        Log.i("response:", returnStr);
+
+
+		    } catch (ClientProtocolException e) {
+		    	e.printStackTrace();
+
+		    } catch (IOException e) {
+		    	e.printStackTrace();
+		    }
+		    return returnStr;
+			
+//			return null;
+		}
+		
+		
+		protected void onPostExecute(String response){
+			Log.d("debug", "Response: " + response);
+			try {
+				JSONObject json = new JSONObject(response);
+				
+				//change contact within adateper
+				Contact oldContact = contactAdapter.getItem(positionOfContact);
+			
+				oldContact.setGivenName(json.getString("sname"));
+				oldContact.setFamilyName(json.getString("fname"));
+//				oldContact = new Contact(json.getString("sname"), json.getString("fname"));
+//				
+//				Log.d("debug", "adapter getCount before :" + contactAdapter.getCount());
+//				contactAdapter.add(oldContact);
+//				contactAdapter.add(new Contact("new", "name"));
+//				Log.d("debug", "Size of List after I :" + contactAdapter.contactList.size());
+				contactAdapter.notifyDataSetChanged();
+//				Log.d("debug", "adateper getCount After :" + contactAdapter.getCount());
+				
+				
+				
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 	}
 	
 	private void populateListWithContacts(ArrayList<Contact> listContacts){
@@ -181,4 +292,12 @@ public class ContactsViewerActivity extends Activity {
 //        aa.notifyDataSetChanged();
         
 	}
+	
+/*	*//** Synchronous method for making a post via  Apache HttpClient library*//*
+	public String postData(String url,JSONObject obj) {
+	    // Create a new HttpClient and Post Header
+
+
+	}*/
+	
 }

@@ -26,6 +26,11 @@ public class Contact {
 		isSelected = false;
 	}
 	
+	@Override
+	public String toString(){
+		return "given name: " + givenName +", family name:" + familyName + ", isSelected:" + isSelected;
+	}
+	
 	/* --------------   Setters & Getters ----------------- */
 	public String getGivenName() {
 		return givenName;

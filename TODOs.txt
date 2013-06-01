@@ -4,9 +4,9 @@ OK zrobiony jest adapter laczacy listView z 5 kontaktami
 OK listView ma CheckBoxa + jego Pole Name wyswietla imie i nazwisko kontaktu
 OK jest przycisk wyslij ktory pobiera zaznaczone dane
 OK budowany jest JSON z zaznczonymi kontakami
-- postawiony jest serwer + skrypt odwracajacy
-- przetestowany jest serwer
-- w watku glownym jest robione zapytanie i wyswietlony w konsoli jest zwrot
+OK postawiony jest serwer + skrypt odwracajacy
+OK przetestowany jest serwer
+OK w watku glownym jest robione zapytanie i wyswietlony w konsoli jest zwrot
 - zwrot podmienia zawartosc listy (adaptera) i informuje go o tym
 - uzyty jest AsynTask (Service? raczej AsyntTask) do zrobienia zapytania
 
