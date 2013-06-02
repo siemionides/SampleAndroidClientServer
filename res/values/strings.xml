@@ -2,9 +2,15 @@
 <resources>
 
     <string name="app_name">ImpaqSampleProject</string>
-    <string name="action_settings">Settings</string>
-    <string name="title">5 contacts:</string>
-    <string name="button_send">Send</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Ustawienia</string>
+    <string name="button_send">Wyślij</string>
+    
+    
+    <!-- Preferences Activity -->
+    <string name="title_activity_preferences">Ustawienia</string>
+    <string name="ip_textfield_name">IP hosta</string>
+    <string name="ip_textfield_summary">IP hosta na którym uruchomiony jest skrypt node-swapnames.js</string>
+    <string name="port_textfield_name">Port hosta</string>
+    <string name="port_textfield_summary">Port ip hosta na którym uruchomiony jest skrypt node-swapnames.js</string>
 
 </resources>

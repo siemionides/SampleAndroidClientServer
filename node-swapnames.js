@@ -22,6 +22,6 @@ http.createServer(function (req, res) {
             res.end(JSON.stringify(data) + '\n');
  
       });
-}).listen(8881, "127.0.0.1");
+}).listen(8881, "0.0.0.0");
  
-console.log('Server running at http://127.0.0.1:8881/');
+console.log('Server running at http://0.0.0.0:8881/');

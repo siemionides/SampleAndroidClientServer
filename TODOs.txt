@@ -7,14 +7,18 @@ OK budowany jest JSON z zaznczonymi kontakami
 OK postawiony jest serwer + skrypt odwracajacy
 OK przetestowany jest serwer
 OK w watku glownym jest robione zapytanie i wyswietlony w konsoli jest zwrot
-- zwrot podmienia zawartosc listy (adaptera) i informuje go o tym
-- uzyty jest AsynTask (Service? raczej AsyntTask) do zrobienia zapytania
+OK- zwrot podmienia zawartosc listy (adaptera) i informuje go o tym
+OK uzyty jest AsynTask (Service? raczej AsyntTask) do zrobienia zapytania
 
 bonusy:
-- zrob by adapter trzymal tablice obiektow z polami name i family name - zeby w razie spacji dobrze dzialalo
-- 
+OK zrob by adapter trzymal tablice obiektow z polami name i family name - zeby w razie spacji dobrze dzialalo
+OK zrobić by tylko jedno połączenie było wykorzystywane do obłsugia całej grupy
+OK dodać edytowalne pole z adresem IP i portem -> Użyć PreferenceFragment
+OK naprawić kodowanie
+OK komentarz gdy złe IP jest podane (Toast!)
 
- 
+
+Mail:
 Stworzyć aplikację, która na ekranie wyświetli 5 kontaktów (imię i nazwisko) z wewnętrznej ksiązki adresowej telefonu.
 Obok każdego kontaktu (imię i nazwisko) wyświetlić checkbox.
 Poniżej listy wyświetlić klawisz "Wyślij".
